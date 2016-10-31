@@ -1,6 +1,6 @@
-#/usr/bin/python3
+#!/usr/bin/python3
 from subprocess import call
-import time, os
+import time, os, sys, signal
 
 time_form = '%Y-%m-%d %H:%M'
 a_loc = "adds.txt"
@@ -21,7 +21,12 @@ def fancy_time(utime='', mode=''):
         return htime
     else:
         return [utime, htime]
-
+    
+def nice_exit(x='', y=''):
+    raise SystemExit
+    
+signal.signal(signal.SIGINT, nice_exit)
+    
 def time_diff(time_a, time_b):
     # takes 2 unix timestamps as input,
     # returns 2 largest datetime units
@@ -29,6 +34,9 @@ def time_diff(time_a, time_b):
     consts = [1, 1, 60, 3600, 86400, 604800, 2629746, 31556952]
     abbrv  = ['', 's', 'm', 'h', 'd', 'w', 'm', 'y']
     string = []
+
+    if time_c == 0:
+        return "0s"
     
     for n, i in enumerate(consts):
         if i > time_c:
@@ -86,7 +94,7 @@ def mount_rfs():
 
     choice = input(prompt).strip()
     host = None
-
+    
     try:
         if 0 <= int(choice) < len(addies):
             host = addies[int(choice)]
@@ -94,8 +102,8 @@ def mount_rfs():
         pass
     
     if not host:
-        print("Your selection is invalid.")
-        x = input("Would you still like to try mounting?\n[y/n] ").strip().lower()
+        print("Your selection is invalid. Would you still like to")
+        x = input("try mounting?\n[y/n] ").strip().lower()
         if x == 'y':
             mount_rfs()
         else:
@@ -114,7 +122,6 @@ def mount_rfs():
         print("\n\nUnmounted.")
     else:
         print("\nPlease make sure that", r_dir, "exists and is empty.")
-
     
 def loadr(d_mod='a', choi=0):
     # a -- list of addresses without time info
@@ -180,7 +187,6 @@ def opts(mo="s"):
         mount_rfs()
     elif mo == 'q':
         keygen()
-    
 
 def cprompt():
     print("*"*50)
@@ -194,10 +200,10 @@ def cprompt():
         prompt = "[0] "
         print("The address you can connect to is:\n")
     for n, i in enumerate(addies):
-        print("* {0}) {1}\n   {2}".format(n, i[0], i[1]))
-        
+        print("* {0}) {1}\n   {2}".format(n, i[0], i[1]))    
     print("\nWhich one would you like to connect to?\n")
     print("You can also add an entry with 'a' or remove one with 'r'")
+
     choice = input(prompt).strip()
     try:
         if 0 <= int(choice) < len(addies):
@@ -206,9 +212,11 @@ def cprompt():
             call(["ssh", addies[int(choice)][0]])
 
     except:
-        if choice[0].lower() in opts('k'):
+        try:
             print(choice.strip())
             opts(choice.strip()[0].lower())
+        except:
+            pass
 
     cprompt()
 
@@ -221,6 +229,9 @@ def main():
     if not os.path.isfile(r_dir) and not os.path.isdir(r_dir):
         os.mkdir(r_dir)
         print("Created remote mounting directory.")
-    cprompt()
+    try:
+        cprompt()
+    except EOFError:
+        nice_exit()
 
 main()
