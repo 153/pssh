@@ -46,7 +46,8 @@ def time_diff(time_a, time_b):
                 break
             while tmp >= consts[n-1]:
                 tmp -= consts[n-1]
-            string.append(str(tmp//consts[n-2]) + abbrv[n-2])
+            if tmp//consts[n-2] != 0:
+                string.append(str(tmp//consts[n-2]) + abbrv[n-2])
             break
 
     return " ".join(string)
