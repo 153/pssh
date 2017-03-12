@@ -203,7 +203,7 @@ def cprompt():
     for n, i in enumerate(addies):
         print("* {0}) {1}\n   {2}".format(n, i[0], i[1]))    
     print("\nWhich one would you like to connect to?\n")
-    print("You can also add an entry with 'a' or remove one with 'r'")
+    print("You can also add an entry with 'a' or delete one with 'd'")
 
     choice = input(prompt).strip()
     try:
